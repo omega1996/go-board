@@ -226,6 +226,7 @@ void Menu::select_item()
 
 void Menu::update_status(bool wifi, bool ogs, int battery)
 {
+  display.fillRect(0, 0, 128, 16, BLACK);
   display.setTextSize(1);
   display.setCursor(4, 4);
   switch (_current_menu_level)

@@ -12,9 +12,12 @@ WiFiManager wm;
 unsigned int timeout = 120; // seconds to run for
 unsigned int startTime = millis();
 bool portalRunning = false;
+bool wifi_connected = false;
 
 void connectWiFi()
 {
+
+  wifi_connected = wm.getWiFiIsSaved();
   if (portalRunning)
   {
     wm.process(); // do processing
@@ -54,7 +57,7 @@ void setup()
   pinMode(TRIGGER_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  wm.resetSettings();
+  // wm.resetSettings();
 
   std::vector<const char *> wm_menu = {"wifi", "exit"};
   wm.setMenu(wm_menu);
@@ -63,13 +66,14 @@ void setup()
   wm.setConfigPortalBlocking(false);
   wm.setConfigPortalTimeout(60);
 
-  if (wm.autoConnect("GoBoard"))
+  wifi_connected = wm.autoConnect("GoBoard");
+
+  if (!wifi_connected)
   {
-    Serial.println("connected...yeey :)");
-  }
-  else
-  {
-    Serial.println("Configportal running");
+    wm.setConfigPortalBlocking(false);
+    wm.startConfigPortal("GoBoard");
+    startTime = millis();
+    portalRunning = true;
   }
 
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
@@ -91,7 +95,7 @@ void loop()
 {
   connectWiFi();
 
-  menu.update_status(false, false, 1);
+  menu.update_status(wifi_connected, false, 1);
 
   char readedChar = Serial.read();
   // Serial.println(readedChar);
