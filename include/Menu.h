@@ -17,7 +17,9 @@ public:
 
     void prev_item();
 
-    void select_item();
+    int select_item();
+
+    void show_wifi_page();
 
     void update_status(bool wifi, bool ogs, int battery);
 

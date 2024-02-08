@@ -25,6 +25,7 @@ int _next_item = 0;
 // 1: play submenu,
 // 2: calculate
 // 3: settings submenu
+// 4: wifi
 int _current_menu_level = 0;
 
 void Menu::_calculate_items()
@@ -128,6 +129,8 @@ void Menu::show_page()
   case 3:
     show_settings_page();
     break;
+  case 4:
+    show_wifi_page();
   }
 
   display.display();
@@ -154,74 +157,109 @@ void Menu::show_settings_page()
   _page_display(icons, names);
 }
 
-void Menu::select_item()
+void Menu::show_wifi_page()
+{
+  display.setCursor(0, 24);
+  display.setTextSize(1);
+  display.println("Connect to WiFi");
+  display.println("hotspot GoBoard!");
+};
+
+int Menu::select_item()
 {
   switch (_current_menu_level)
   {
+  // main menu
   case 0:
     switch (_current_item)
     {
+      // play
     case 0:
       _current_menu_level = 1;
       break;
+
+      // score
     case 1:
       _current_menu_level = 2;
       break;
+
+      // settings
     case 2:
       _current_menu_level = 3;
       break;
     }
 
     break;
+
+  // play submenu
   case 1:
     switch (_current_item)
     {
+      // pair
     case 0:
       _current_menu_level = 0;
       break;
+
+      // solo
     case 1:
       _current_menu_level = 0;
       break;
+
+      // practice
     case 2:
       _current_menu_level = 0;
       break;
     }
 
     break;
+
+  // score submenu
   case 2:
     switch (_current_item)
     {
     case 0:
-      _current_menu_level = 0;
-      break;
-    case 1:
-      _current_menu_level = 0;
+      _current_menu_level = 0; // go to main menu, no variants
       break;
     }
 
     break;
-
+  // Settings submenu
   case 3:
     switch (_current_item)
     {
+      // wifi
     case 0:
-      _current_menu_level = 0;
+      _current_menu_level = 4;
       break;
+
+      // brightness
     case 1:
       _current_menu_level = 0;
       break;
+
+      // rules
     case 2:
       _current_menu_level = 0;
       break;
+
+      // colors
     case 4:
       _current_menu_level = 0;
       break;
     }
 
     break;
+
+  // wifi
+  case 4:
+    _current_menu_level = 0; // go to main menu, no variants
+
+    break;
   }
   _current_item = 0;
   show_page();
+
+  return _current_menu_level;
 }
 
 void Menu::update_status(bool wifi, bool ogs, int battery)
@@ -242,6 +280,9 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
     break;
   case 3:
     display.print(F("Settings"));
+    break;
+  case 4:
+    display.print(F("WiFi connect"));
     break;
   }
 

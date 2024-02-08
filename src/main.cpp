@@ -30,16 +30,17 @@ void connectWiFi()
       portalRunning = false;
     }
   }
+}
 
-  // is configuration portal requested?
-  if (digitalRead(TRIGGER_PIN) == LOW)
-  {
-    Serial.println("Button Pressed, Starting Config Portal");
-    wm.setConfigPortalBlocking(false);
-    wm.startConfigPortal("GoBoard");
-    startTime = millis();
-    portalRunning = true;
-  }
+void reconnect_wifi()
+{
+  wm.resetSettings();
+
+  Serial.println("Button Pressed, Starting Config Portal");
+  wm.setConfigPortalBlocking(false);
+  wm.startConfigPortal("GoBoard");
+  startTime = millis();
+  portalRunning = true;
 }
 
 Menu menu;
@@ -112,6 +113,16 @@ void loop()
 
   if (readedChar == 'o')
   {
-    menu.select_item();
+    int selected_item = menu.select_item();
+
+    switch (selected_item)
+    {
+    case 4:
+      reconnect_wifi();
+      break;
+
+    default:
+      break;
+    }
   }
 }
