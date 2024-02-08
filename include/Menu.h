@@ -19,6 +19,8 @@ public:
 
     void select_item();
 
+    void update_status(bool wifi, bool ogs, int battery);
+
 private:
     int _current_item;
     int _prev_item;

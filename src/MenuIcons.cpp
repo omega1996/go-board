@@ -89,12 +89,14 @@ const unsigned char epd_bitmap_sprite_6[] PROGMEM = {
     0x00, 0x7f, 0xff, 0xff, 0xff, 0x7f, 0x00, 0x00};
 
 // Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 352)
-const int epd_bitmap_allArray_LEN = 11;
-const unsigned char *epd_bitmap_allArray[11] = {
+const unsigned char *epd_bitmap_status[4] = {
     epd_bitmap_wifi_sm,
     epd_bitmap_no_wifi,
     epd_bitmap_ogs,
-    epd_bitmap_no_ogs,
+    epd_bitmap_no_ogs};
+
+const unsigned char *epd_bitmap_battery[7] = {
+
     epd_bitmap_sprite_0,
     epd_bitmap_sprite_1,
     epd_bitmap_sprite_2,

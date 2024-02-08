@@ -27,7 +27,6 @@ int _next_item = 0;
 // 3: settings submenu
 int _current_menu_level = 0;
 
-
 void Menu::_calculate_items()
 {
   int count_length;
@@ -89,30 +88,6 @@ void Menu::_page_display(int icons[], char names[][20])
   display.println(names[_next_item]);
 }
 
-void Menu::_show_status()
-{
-  display.setTextSize(1);
-  display.setCursor(4, 4);
-  switch (_current_menu_level)
-  {
-  case 0:
-    display.print(F("Main Menu"));
-    break;
-  case 1:
-    display.print(F("Play"));
-    break;
-  case 2:
-    display.print(F("Score"));
-    break;
-  case 3:
-    display.print(F("Settings"));
-    break;
-  }
-  display.drawBitmap(88, 4, epd_bitmap_allArray[0], 8, 8, SSD1306_WHITE);
-  display.drawBitmap(102, 4, epd_bitmap_allArray[2], 8, 8, SSD1306_WHITE);
-  display.drawBitmap(116, 4, epd_bitmap_allArray[9], 8, 8, SSD1306_WHITE);
-}
-
 void Menu::show_calculate_page()
 {
   display.setCursor(0, 24);
@@ -138,8 +113,6 @@ void Menu::show_page()
   display.clearDisplay();
 
   // _calculate_items();
-
-  _show_status();
 
   switch (_current_menu_level)
   {
@@ -249,4 +222,46 @@ void Menu::select_item()
   }
   _current_item = 0;
   show_page();
+}
+
+void Menu::update_status(bool wifi, bool ogs, int battery)
+{
+  display.setTextSize(1);
+  display.setCursor(4, 4);
+  switch (_current_menu_level)
+  {
+  case 0:
+    display.print(F("Main Menu"));
+    break;
+  case 1:
+    display.print(F("Play"));
+    break;
+  case 2:
+    display.print(F("Score"));
+    break;
+  case 3:
+    display.print(F("Settings"));
+    break;
+  }
+
+  if (wifi)
+  {
+    display.drawBitmap(88, 4, epd_bitmap_status[0], 8, 8, SSD1306_WHITE);
+  }
+  else
+  {
+    display.drawBitmap(88, 4, epd_bitmap_status[1], 8, 8, SSD1306_WHITE);
+  }
+
+  if (ogs)
+  {
+    display.drawBitmap(102, 4, epd_bitmap_status[2], 8, 8, SSD1306_WHITE);
+  }
+  else
+  {
+    display.drawBitmap(102, 4, epd_bitmap_status[3], 8, 8, SSD1306_WHITE);
+  }
+
+  display.drawBitmap(116, 4, epd_bitmap_battery[battery], 8, 8, SSD1306_WHITE);
+  display.display();
 }

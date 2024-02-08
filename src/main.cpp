@@ -91,6 +91,8 @@ void loop()
 {
   connectWiFi();
 
+  menu.update_status(false, false, 1);
+
   char readedChar = Serial.read();
   // Serial.println(readedChar);
 
