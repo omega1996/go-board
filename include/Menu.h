@@ -23,6 +23,8 @@ public:
 
     void update_status(bool wifi, bool ogs, int battery);
 
+    void init();
+
 private:
     int _current_item;
     int _prev_item;

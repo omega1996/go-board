@@ -28,6 +28,19 @@ int _next_item = 0;
 // 4: wifi
 int _current_menu_level = 0;
 
+void Menu::init()
+{
+  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+  {
+    Serial.println(F("SSD1306 allocation failed"));
+    // for (;;)
+    //   ; // Don't proceed, loop forever
+  }
+
+  display.clearDisplay();
+  display.display();
+}
+
 void Menu::_calculate_items()
 {
   int count_length;

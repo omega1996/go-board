@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <WiFiManager.h>
+#include "WiFiManager.h"
 #include <ESPmDNS.h>
 
 #include "Menu.h"
@@ -43,7 +43,9 @@ void reconnect_wifi()
   portalRunning = true;
 }
 
-Menu menu;
+// Menu menu();
+
+Menu menu = Menu();
 
 void setup()
 {
@@ -61,6 +63,7 @@ void setup()
   // wm.resetSettings();
 
   std::vector<const char *> wm_menu = {"wifi", "exit"};
+  std::string wm_title = "GoBoard";
   wm.setMenu(wm_menu);
 
   // wm.setHostname("GoBoard");
@@ -77,15 +80,7 @@ void setup()
     portalRunning = true;
   }
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-  {
-    Serial.println(F("SSD1306 allocation failed"));
-    // for (;;)
-    //   ; // Don't proceed, loop forever
-  }
-
-  display.clearDisplay();
-  display.display();
+  menu.init();
 
   menu.show_page();
 
