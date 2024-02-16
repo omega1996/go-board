@@ -1,6 +1,10 @@
 #pragma once
 #include <Adafruit_SSD1306.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
 
+#include "MenuIcons.h"
 class Menu
 {
 public:
