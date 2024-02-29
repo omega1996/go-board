@@ -24,6 +24,7 @@ class Menu
 
 private:
     MenuItem _currentMenu;
+    int _currentIndex;
 
     MenuItem _items[MAX_MENU_ITEMS];
 

@@ -29,8 +29,9 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
 {
 
   // _title = root->label;
-
+  display.clearDisplay();
   _currentMenu = *root;
+  _currentIndex = selectedIndex;
 
   display.setTextColor(SSD1306_WHITE);
 
@@ -47,6 +48,7 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
   display.write(0x18);
   display.write(0xFE);
   display.println(root->subItems[prevIndex].label);
+  display.println(selectedIndex);
 
   // current item
   // display.drawBitmap(2, 32, bitmap_icons[icons[_current_item]], 16, 16, SSD1306_WHITE);
@@ -72,12 +74,22 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
 
 void Menu::nextItem()
 {
-  return;
+  int nextIndex = _currentIndex + 1;
+  if (nextIndex >= _currentMenu.subItems.size())
+  {
+    nextIndex = 0;
+  }
+  showPage(&_currentMenu, nextIndex);
 }
 
 void Menu::prevItem()
 {
-  return;
+  int prevIndex = _currentIndex - 1;
+  if (prevIndex < 0)
+  {
+    prevIndex = _currentMenu.subItems.size() - 1;
+  }
+  showPage(&_currentMenu, prevIndex);
 }
 
 bool Menu::selectItem()

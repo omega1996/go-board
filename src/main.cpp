@@ -87,7 +87,6 @@ void setup()
 
   MenuItem settings = menu.addItem("settings", bitmap_icons[5], &settings_submenu, 1);
 
-
   menu.showPage(&settings, 0);
 
   Serial.println("Setup done");
@@ -109,6 +108,7 @@ void loop()
 
   if (readedChar == 'd')
   {
+    Serial.println(readedChar);
     menu.nextItem();
   }
 
