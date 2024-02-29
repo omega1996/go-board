@@ -51,7 +51,7 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
   display.println(selectedIndex);
 
   // current item
-  // display.drawBitmap(2, 32, bitmap_icons[icons[_current_item]], 16, 16, SSD1306_WHITE);
+  display.drawBitmap(2, 32, root->subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
   display.drawRoundRect(0, 29, display.width(), 22, 5, SSD1306_WHITE);
   display.setTextSize(2);
   display.setCursor(25, 32);
