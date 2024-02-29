@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "WiFiManager.h"
 #include <ESPmDNS.h>
+#include "MenuIcons.h"
 
 #include "Menu.h"
 
@@ -43,6 +44,13 @@ void reconnect_wifi()
 // Menu menu();
 Menu menu = Menu("GoBoard");
 
+bool callback2(void *data)
+{
+  int *value = (int *)data;
+  (*value)--;
+  return true;
+}
+
 void setup()
 {
   menu.init();
@@ -70,7 +78,11 @@ void setup()
     portalRunning = true;
   }
 
-  menu.showPage();
+  int value2 = 10;
+
+  MenuItem wifi = menu.addItem("connectWiFi", bitmap_icons[6], callback2, &value2);
+
+  menu.showPage(&wifi);
 
   Serial.println("Setup done");
 }

@@ -26,7 +26,7 @@ void Menu::init()
   display.display();
 }
 
-void Menu::showPage()
+void Menu::showPage(MenuItem *root)
 {
 
   display.setTextColor(SSD1306_WHITE);
@@ -46,7 +46,7 @@ void Menu::showPage()
   display.setTextSize(2);
   display.setCursor(25, 32);
   // display.println(F("asddad"));
-  // display.println(names[_current_item]);
+  display.println(root->label);
 
   // next item
   display.setTextSize(1);
@@ -96,6 +96,8 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   //   break;
   // }
 
+  display.print(_title);
+
   if (wifi)
   {
     display.drawBitmap(88, 4, epd_bitmap_status[0], 8, 8, SSD1306_WHITE);
@@ -116,4 +118,21 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
 
   display.drawBitmap(116, 4, epd_bitmap_battery[battery], 8, 8, SSD1306_WHITE);
   display.display();
+}
+
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data)
+{
+  MenuItem item = {label, false, callback, data, icon};
+  return item;
+}
+
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, MenuItem *subItems, size_t subItemsCount)
+{
+  // Создаем временный вектор из массива subItems
+  std::vector<MenuItem> subItemsVector(subItems, subItems + subItemsCount);
+
+  // Создаем MenuItem, инициализируя его поля
+  MenuItem item = {label, false, nullptr, nullptr, icon, subItemsVector};
+
+  return item;
 }

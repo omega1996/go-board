@@ -16,7 +16,7 @@ struct MenuItem
     bool (*callback)(void *);
     void *data;
     const unsigned char *icon;
-    std::vector<MenuItem> subItems; 
+    std::vector<MenuItem> subItems;
 };
 
 class Menu
@@ -35,9 +35,9 @@ public:
     void init();
 
     MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data);
-    MenuItem addItem(const char *label, const uint8_t *icon, MenuItem *submenu);
+    MenuItem addItem(const char *label, const uint8_t *icon, MenuItem *submenu, size_t subItemsCount);
 
-    void showPage();
+    void showPage(MenuItem *root);
 
     void nextItem();
 
