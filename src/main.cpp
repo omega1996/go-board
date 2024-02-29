@@ -42,7 +42,7 @@ void reconnect_wifi()
 }
 
 // Menu menu();
-Menu menu = Menu("GoBoard");
+Menu menu = Menu();
 
 bool callback2(void *data)
 {
@@ -80,9 +80,15 @@ void setup()
 
   int value2 = 10;
 
-  MenuItem wifi = menu.addItem("connectWiFi", bitmap_icons[6], callback2, &value2);
+  MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], callback2, &value2);
+  MenuItem blabla = menu.addItem("blabla", bitmap_icons[7], callback2, &value2);
 
-  menu.showPage(&wifi);
+  std::vector<MenuItem> settings_submenu = {wifi, blabla};
+
+  MenuItem settings = menu.addItem("settings", bitmap_icons[5], &settings_submenu, 1);
+
+
+  menu.showPage(&settings, 0);
 
   Serial.println("Setup done");
 }

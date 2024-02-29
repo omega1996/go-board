@@ -23,21 +23,18 @@ class Menu
 {
 
 private:
-    MenuItem _current_item;
-    MenuItem _prev_item;
-    MenuItem _next_item;
+    MenuItem _currentMenu;
 
-    const char *_title;
     MenuItem _items[MAX_MENU_ITEMS];
 
 public:
-    Menu(const char *title);
+    Menu();
     void init();
 
     MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data);
-    MenuItem addItem(const char *label, const uint8_t *icon, MenuItem *submenu, size_t subItemsCount);
+    MenuItem addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu, size_t subItemsCount);
 
-    void showPage(MenuItem *root);
+    void showPage(MenuItem *root, int selectedIndex);
 
     void nextItem();
 

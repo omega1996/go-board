@@ -8,9 +8,8 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-Menu::Menu(const char *title)
+Menu::Menu()
 {
-  _title = title;
 }
 
 void Menu::init()
@@ -26,19 +25,28 @@ void Menu::init()
   display.display();
 }
 
-void Menu::showPage(MenuItem *root)
+void Menu::showPage(MenuItem *root, int selectedIndex)
 {
+
+  // _title = root->label;
+
+  _currentMenu = *root;
 
   display.setTextColor(SSD1306_WHITE);
 
   // display.drawRect(0, 0, display.width(), 16, SSD1306_WHITE);
 
   // previous item
+  int prevIndex = selectedIndex - 1;
+  if (prevIndex < 0)
+  {
+    prevIndex = root->subItems.size() - 1;
+  }
   display.setTextSize(1);
   display.setCursor(10, 17);
   display.write(0x18);
   display.write(0xFE);
-  // display.println(names[_prev_item]);
+  display.println(root->subItems[prevIndex].label);
 
   // current item
   // display.drawBitmap(2, 32, bitmap_icons[icons[_current_item]], 16, 16, SSD1306_WHITE);
@@ -46,14 +54,19 @@ void Menu::showPage(MenuItem *root)
   display.setTextSize(2);
   display.setCursor(25, 32);
   // display.println(F("asddad"));
-  display.println(root->label);
+  display.println(root->subItems[selectedIndex].label);
 
   // next item
+  int nextIndex = selectedIndex + 1;
+  if (nextIndex >= root->subItems.size())
+  {
+    nextIndex = 0;
+  }
   display.setTextSize(1);
   display.setCursor(10, 55);
   display.write(0x19);
   display.write(0xFE);
-  // display.println(names[_next_item]);
+  display.println(root->subItems[nextIndex].label);
   display.display();
 }
 
@@ -77,26 +90,8 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   display.fillRect(0, 0, 128, 16, BLACK);
   display.setTextSize(1);
   display.setCursor(4, 4);
-  // switch (_current_menu_level)
-  // {
-  // case 0:
-  //   display.print(F("Main Menu"));
-  //   break;
-  // case 1:
-  //   display.print(F("Play"));
-  //   break;
-  // case 2:
-  //   display.print(F("Score"));
-  //   break;
-  // case 3:
-  //   display.print(F("Settings"));
-  //   break;
-  // case 4:
-  //   display.print(F("WiFi connect"));
-  //   break;
-  // }
 
-  display.print(_title);
+  display.print(_currentMenu.label);
 
   if (wifi)
   {
@@ -126,13 +121,10 @@ MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(
   return item;
 }
 
-MenuItem Menu::addItem(const char *label, const uint8_t *icon, MenuItem *subItems, size_t subItemsCount)
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu, size_t subItemsCount)
 {
-  // Создаем временный вектор из массива subItems
-  std::vector<MenuItem> subItemsVector(subItems, subItems + subItemsCount);
-
   // Создаем MenuItem, инициализируя его поля
-  MenuItem item = {label, false, nullptr, nullptr, icon, subItemsVector};
+  MenuItem item = {label, false, nullptr, nullptr, icon, *submenu};
 
   return item;
 }
