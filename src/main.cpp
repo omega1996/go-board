@@ -4,9 +4,6 @@
 
 #include "Menu.h"
 
-#define LED_BUILTIN 15
-#define TRIGGER_PIN 0
-
 WiFiManager wm;
 
 unsigned int timeout = 120; // seconds to run for
@@ -36,7 +33,7 @@ void reconnect_wifi()
 {
   wm.resetSettings();
 
-  Serial.println("Button Pressed, Starting Config Portal");
+  Serial.println(F("Button Pressed, Starting Config Portal"));
   wm.setConfigPortalBlocking(false);
   wm.startConfigPortal("GoBoard");
   startTime = millis();
@@ -44,11 +41,11 @@ void reconnect_wifi()
 }
 
 // Menu menu();
-
-Menu menu = Menu();
+Menu menu = Menu("GoBoard");
 
 void setup()
 {
+  menu.init();
   Serial.begin(115200);
 
   Serial.setDebugOutput(true);
@@ -57,16 +54,9 @@ void setup()
 
   WiFi.mode(WIFI_STA);
 
-  pinMode(TRIGGER_PIN, INPUT_PULLUP);
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  // wm.resetSettings();
-
   std::vector<const char *> wm_menu = {"wifi", "exit"};
-  std::string wm_title = "GoBoard";
   wm.setMenu(wm_menu);
 
-  // wm.setHostname("GoBoard");
   wm.setConfigPortalBlocking(false);
   wm.setConfigPortalTimeout(60);
 
@@ -80,16 +70,14 @@ void setup()
     portalRunning = true;
   }
 
-  menu.init();
-
-  menu.show_page();
+  menu.showPage();
 
   Serial.println("Setup done");
 }
 
 void loop()
 {
-  connectWiFi();
+  // connectWiFi();
 
   menu.update_status(wifi_connected, false, 1);
 
@@ -98,26 +86,16 @@ void loop()
 
   if (readedChar == 'u')
   {
-    menu.prev_item();
+    menu.prevItem();
   }
 
   if (readedChar == 'd')
   {
-    menu.next_item();
+    menu.nextItem();
   }
 
   if (readedChar == 'o')
   {
-    int selected_item = menu.select_item();
-
-    switch (selected_item)
-    {
-    case 4:
-      reconnect_wifi();
-      break;
-
-    default:
-      break;
-    }
+    bool selected_item = menu.selectItem();
   }
 }

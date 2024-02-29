@@ -1,58 +1,51 @@
 #pragma once
+#include <vector>
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
-
 #include "MenuIcons.h"
+
+#define MAX_MENU_ITEMS 8
+
+// Define structure for menu item
+struct MenuItem
+{
+    const char *label;
+    bool hasSubMenu;
+    bool (*callback)(void *);
+    void *data;
+    const unsigned char *icon;
+    std::vector<MenuItem> subItems; 
+};
+
 class Menu
 {
 
 private:
-    int _current_item;
-    int _prev_item;
-    int _next_item;
+    MenuItem _current_item;
+    MenuItem _prev_item;
+    MenuItem _next_item;
 
-    int _current_menu_level = 0;
-
-    int _main_page_icons[3];
-    char _main_page_names[3][20];
-
-    // play page
-    int _play_page_icons[3];
-    char _play_page_names[3][20];
-
-    // play page
-    int _settings_page_icons[4];
-    char _settings_page_names[4][20];
-
-    void _calculate_items();
-
-    void _page_display(int icons[], char names[][20]);
-
-    void _show_status();
+    const char *_title;
+    MenuItem _items[MAX_MENU_ITEMS];
 
 public:
-    void show_page();
+    Menu(const char *title);
+    void init();
 
-    void show_main_page();
+    MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data);
+    MenuItem addItem(const char *label, const uint8_t *icon, MenuItem *submenu);
 
-    void show_play_page();
+    void showPage();
 
-    void show_settings_page();
+    void nextItem();
 
-    void show_calculate_page();
-    void next_item();
+    void prevItem();
 
-    void prev_item();
-
-    int select_item();
-
-    void show_wifi_page();
+    bool selectItem();
 
     void update_status(bool wifi, bool ogs, int battery);
-
-    void init();
 };
 
 extern Adafruit_SSD1306 display;
