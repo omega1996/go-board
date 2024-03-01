@@ -16,6 +16,8 @@ void Menu::init(MenuItem *root)
 {
 
   _rootMenu = *root;
+
+  _menuStack.push_back({&_rootMenu, 0});
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
   {
     Serial.println(F("SSD1306 allocation failed"));
@@ -27,13 +29,18 @@ void Menu::init(MenuItem *root)
   display.display();
 }
 
-void Menu::showPage(MenuItem *root, int selectedIndex)
+void Menu::showPage()
 {
 
-  // _title = root->label;
   display.clearDisplay();
-  _currentMenu = *root;
-  _currentIndex = selectedIndex;
+
+  MenuState lastState = _menuStack.back();
+
+  MenuItem root = *lastState.parent;
+
+  int selectedIndex = lastState.selectedIndex;
+
+  Serial.print(selectedIndex);
 
   display.setTextColor(SSD1306_WHITE);
 
@@ -43,26 +50,26 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
   int prevIndex = selectedIndex - 1;
   if (prevIndex < 0)
   {
-    prevIndex = root->subItems.size() - 1;
+    prevIndex = root.subItems.size() - 1;
   }
   display.setTextSize(1);
   display.setCursor(10, 17);
   display.write(0x18);
   display.write(0xFE);
-  display.println(root->subItems[prevIndex].label);
+  display.println(root.subItems[prevIndex].label);
   // display.println(selectedIndex);
 
   // current item
-  display.drawBitmap(2, 32, root->subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
+  display.drawBitmap(2, 32, root.subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
   display.drawRoundRect(0, 29, display.width(), 22, 5, SSD1306_WHITE);
   display.setTextSize(2);
   display.setCursor(25, 32);
   // display.println(F("asddad"));
-  display.println(root->subItems[selectedIndex].label);
+  display.println(root.subItems[selectedIndex].label);
 
   // next item
   int nextIndex = selectedIndex + 1;
-  if (nextIndex >= root->subItems.size())
+  if (nextIndex >= root.subItems.size())
   {
     nextIndex = 0;
   }
@@ -70,69 +77,86 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
   display.setCursor(10, 55);
   display.write(0x19);
   display.write(0xFE);
-  display.println(root->subItems[nextIndex].label);
+  display.println(root.subItems[nextIndex].label);
   display.display();
 }
 
 void Menu::nextItem()
 {
-  int nextIndex = _currentIndex + 1;
-  if (nextIndex >= _currentMenu.subItems.size())
+  MenuState &lastState = _menuStack.back();
+
+  MenuItem root = *lastState.parent;
+
+  lastState.selectedIndex++;
+  if (lastState.selectedIndex >= root.subItems.size())
   {
-    nextIndex = 0;
+    lastState.selectedIndex = 0;
   }
-  showPage(&_currentMenu, nextIndex);
+
+  // lastState.selectedIndex = nextIndex;
+
+  showPage();
 }
 
 void Menu::prevItem()
 {
-  int prevIndex = _currentIndex - 1;
-  if (prevIndex < 0)
+  MenuState &lastState = _menuStack.back();
+
+  MenuItem root = *lastState.parent;
+
+  lastState.selectedIndex--;
+  if (lastState.selectedIndex < 0)
   {
-    prevIndex = _currentMenu.subItems.size() - 1;
+    lastState.selectedIndex = root.subItems.size() - 1;
   }
-  showPage(&_currentMenu, prevIndex);
+  showPage();
 }
 
 bool Menu::selectItem()
 {
-  Serial.print("H?");
+
+  MenuState lastState = _menuStack.back();
+
+  MenuItem root = *lastState.parent;
+
+  int selectedIndex = lastState.selectedIndex;
+
+  Serial.println("H?:");
   if (_callbackCalling)
   {
     Serial.print("off callback");
     _callbackCalling = false;
-    std::tuple<MenuItem *, int> lastItem = _menuStack.back();
-    //_menuStack.pop_back();
-    showPage(std::get<0>(lastItem), std::get<1>(lastItem));
-    return false;
-  }
-
-  if (_currentMenu.subItems[_currentIndex].isBackButton)
-  {
-    Serial.print("isBackButton");
-
     // std::tuple<MenuItem *, int> lastItem = _menuStack.back();
-    // _menuStack.pop_back();
-    display.setTextSize(1);
-    display.setCursor(20, 50);
-    display.println("sdsd");
+    //_menuStack.pop_back();
     // showPage(std::get<0>(lastItem), std::get<1>(lastItem));
     return false;
   }
 
-  if (_currentMenu.subItems[_currentIndex].callback != NULL)
+  if (root.subItems[selectedIndex].isBackButton)
+  {
+    Serial.print("isBackButton");
+
+    if (!_menuStack.empty())
+    {
+      _menuStack.pop_back();
+      showPage();
+    }
+    return false;
+  }
+
+  if (root.subItems[selectedIndex].callback != NULL)
   {
     Serial.print("callback");
-    _currentMenu.subItems[_currentIndex].callback(&display);
+    root.subItems[selectedIndex].callback(&display);
     _callbackCalling = true;
     return true;
   }
 
-  if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
+  if (root.subItems[selectedIndex].subItems.size() > 0)
   {
     Serial.print("subItems");
-    _menuStack.push_back(std::tuple<MenuItem *, int>{&_currentMenu, _currentIndex});
-    showPage(&_currentMenu.subItems[_currentIndex], 0);
+    _menuStack.push_back({&root.subItems[selectedIndex], selectedIndex});
+    showPage();
     return false;
   }
   return false;
@@ -144,7 +168,11 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   display.setTextSize(1);
   display.setCursor(4, 4);
 
-  display.print(_currentMenu.label);
+  MenuState lastState = _menuStack.back();
+
+  MenuItem root = *lastState.parent;
+
+  display.print(root.label);
 
   if (wifi)
   {

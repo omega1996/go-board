@@ -23,14 +23,20 @@ class Menu
 {
 
 private:
-    MenuItem _currentMenu;
-    int _currentIndex;
+    struct MenuState
+    {
+        MenuItem *parent;
+        int selectedIndex;
+    };
+
+    // MenuItem _currentMenu;
+    // int _currentIndex;
 
     MenuItem _rootMenu;
 
     bool _callbackCalling;
 
-    std::vector<std::tuple<MenuItem *, int>> _menuStack;
+    std::vector<MenuState> _menuStack;
 
 public:
     Menu();
@@ -40,7 +46,7 @@ public:
     MenuItem addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu);
     MenuItem addItem(bool isBackButton);
 
-    void showPage(MenuItem *root, int selectedIndex);
+    void showPage();
 
     void nextItem();
 

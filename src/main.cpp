@@ -116,7 +116,7 @@ void setup()
   MenuItem root = createRootMenu();
   menu.init(&root);
 
-  menu.showPage(&root, 0);
+  menu.showPage();
 
   Serial.println("Setup done");
 }
