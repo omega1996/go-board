@@ -42,7 +42,7 @@ bool reconnect_wifi(Adafruit_SSD1306 *display)
   display->clearDisplay();
 
   display->setTextSize(1);
-  display->setCursor(10, 10);
+  display->setCursor(0, 20);
   display->print(F("Connect to GoBoard wifi hostpot"));
   display->display();
   return true;
@@ -65,29 +65,29 @@ MenuItem createRootMenu()
   int value2 = 10;
 
   // play menu
-  MenuItem pair = menu.addItem("pair", bitmap_icons[6], callback2);
-  MenuItem practice = menu.addItem("practice", bitmap_icons[6], callback2);
-  MenuItem online = menu.addItem("online", bitmap_icons[6], callback2);
+  MenuItem pair = menu.addItem("pair", bitmap_icons[4], callback2);
+  MenuItem practice = menu.addItem("practice", bitmap_icons[5], callback2);
+  MenuItem online = menu.addItem("online", bitmap_icons[11], callback2);
   MenuItem play_back = menu.addItem(true);
   // back?
   std::vector<MenuItem> play_submenu = {pair, practice, online, play_back};
 
   // settings menu
   MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], reconnect_wifi);
-  MenuItem ogs = menu.addItem("ogs", bitmap_icons[6], callback2);
-  MenuItem bright = menu.addItem("bright", bitmap_icons[6], callback2);
-  MenuItem colors = menu.addItem("colors", bitmap_icons[6], callback2);
-  MenuItem rules = menu.addItem("rules", bitmap_icons[6], callback2);
-  MenuItem timer = menu.addItem("timer", bitmap_icons[6], callback2);
-  MenuItem update = menu.addItem("update", bitmap_icons[6], callback2);
-  MenuItem size = menu.addItem("size", bitmap_icons[6], callback2);
+  MenuItem ogs = menu.addItem("ogs", bitmap_icons[11], callback2);
+  MenuItem bright = menu.addItem("bright", bitmap_icons[7], callback2);
+  MenuItem colors = menu.addItem("colors", bitmap_icons[9], callback2);
+  MenuItem rules = menu.addItem("rules", bitmap_icons[8], callback2);
+  MenuItem timer = menu.addItem("timer", bitmap_icons[12], callback2);
+  MenuItem update = menu.addItem("update", bitmap_icons[13], callback2);
+  MenuItem size = menu.addItem("size", bitmap_icons[14], callback2);
   MenuItem settings_back = menu.addItem(true);
 
   std::vector<MenuItem> settings_submenu = {wifi, ogs, bright, colors, rules, timer, update, size, settings_back};
 
-  MenuItem play = menu.addItem("play", bitmap_icons[6], &play_submenu);
-  MenuItem score = menu.addItem("score", bitmap_icons[6], callback2);
-  MenuItem settings = menu.addItem("settings", bitmap_icons[7], &settings_submenu);
+  MenuItem play = menu.addItem("play", bitmap_icons[0], &play_submenu);
+  MenuItem score = menu.addItem("score", bitmap_icons[1], callback2);
+  MenuItem settings = menu.addItem("settings", bitmap_icons[2], &settings_submenu);
 
   std::vector<MenuItem> main_submenu = {play, score, settings};
 
@@ -139,7 +139,7 @@ void loop()
 
   char readedChar = Serial.read();
   // Serial.println(readedChar);
-  Serial.println(readedChar);
+  // Serial.println(readedChar);
 
   if (readedChar == 'u')
   {

@@ -207,7 +207,7 @@ MenuItem Menu::addItem(bool isBackButton)
 {
 
   // Создаем MenuItem, инициализируя его поля
-  MenuItem item = {"back", nullptr, bitmap_icons[0], {}, isBackButton};
+  MenuItem item = {"back", nullptr, bitmap_icons[10], {}, isBackButton};
 
   return item;
 }
