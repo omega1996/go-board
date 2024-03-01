@@ -17,6 +17,7 @@ void Menu::init(MenuItem *root)
 
   _rootMenu = *root;
 
+  _menuStack.clear();
   _menuStack.push_back({&_rootMenu, 0});
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
   {
