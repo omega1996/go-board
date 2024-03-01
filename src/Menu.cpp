@@ -96,16 +96,30 @@ void Menu::prevItem()
 
 bool Menu::selectItem()
 {
-  _parentIndex = _currentIndex;
+  if (_callbackCalling)
+  {
+    _callbackCalling = false;
+    std::tuple<MenuItem *, int> lastItem = _menuStack.back();
+    //_menuStack.pop_back();
+    showPage(std::get<0>(lastItem), std::get<1>(lastItem));
+    return false;
+  }
+
   if (_currentMenu.subItems[_currentIndex].callback != NULL)
   {
     _currentMenu.subItems[_currentIndex].callback(&display);
+    _callbackCalling = true;
+    return true;
   }
-  else if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
+
+  if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
   {
+
+    _menuStack.push_back(std::tuple<MenuItem *, int>{&_currentMenu, _currentIndex});
     showPage(&_currentMenu.subItems[_currentIndex], 0);
+    return false;
   }
-  return true;
+  return false;
 }
 
 void Menu::update_status(bool wifi, bool ogs, int battery)

@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
+#include <tuple>
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include "MenuIcons.h"
 
-#define MAX_MENU_ITEMS 8
+#define MAX_MENU_DEPTH 8
 
 // Define structure for menu item
 struct MenuItem
@@ -25,7 +26,10 @@ private:
     int _currentIndex;
 
     MenuItem _rootMenu;
-    int _parentIndex;
+
+    bool _callbackCalling;
+
+    std::vector<std::tuple<MenuItem *, int>> _menuStack;
 
 public:
     Menu();
