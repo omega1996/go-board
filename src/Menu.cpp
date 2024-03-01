@@ -126,9 +126,8 @@ bool Menu::selectItem()
   {
     Serial.print("off callback");
     _callbackCalling = false;
-    // std::tuple<MenuItem *, int> lastItem = _menuStack.back();
-    //_menuStack.pop_back();
-    // showPage(std::get<0>(lastItem), std::get<1>(lastItem));
+
+    showPage();
     return false;
   }
 
@@ -155,7 +154,7 @@ bool Menu::selectItem()
   if (root.subItems[selectedIndex].subItems.size() > 0)
   {
     Serial.print("subItems");
-    _menuStack.push_back({&root.subItems[selectedIndex], selectedIndex});
+    _menuStack.push_back({&root.subItems[selectedIndex], 0});
     showPage();
     return false;
   }

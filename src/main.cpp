@@ -73,8 +73,9 @@ MenuItem createRootMenu()
   MenuItem timer = menu.addItem("timer", bitmap_icons[6], callback2);
   MenuItem update = menu.addItem("update", bitmap_icons[6], callback2);
   MenuItem size = menu.addItem("size", bitmap_icons[6], callback2);
+  MenuItem settings_back = menu.addItem(true);
 
-  std::vector<MenuItem> settings_submenu = {wifi, ogs, bright, colors, rules, timer, update, size};
+  std::vector<MenuItem> settings_submenu = {wifi, ogs, bright, colors, rules, timer, update, size, settings_back};
 
   MenuItem play = menu.addItem("play", bitmap_icons[6], &play_submenu);
   MenuItem score = menu.addItem("score", bitmap_icons[6], callback2);
