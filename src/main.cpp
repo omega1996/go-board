@@ -12,23 +12,23 @@ unsigned int startTime = millis();
 bool portalRunning = false;
 bool wifi_connected = false;
 
-// void connectWiFi()
-// {
+void connectWiFi()
+{
 
-//   wifi_connected = wm.getWiFiIsSaved();
-//   if (portalRunning)
-//   {
-//     wm.process(); // do processing
+  wifi_connected = wm.getWiFiIsSaved();
+  if (portalRunning)
+  {
+    wm.process(); // do processing
 
-//     // check for timeout
-//     if ((millis() - startTime) > (timeout * 1000))
-//     {
-//       Serial.println("portaltimeout");
-//       wm.stopConfigPortal();
-//       portalRunning = false;
-//     }
-//   }
-// }
+    // check for timeout
+    if ((millis() - startTime) > (timeout * 1000))
+    {
+      Serial.println("portaltimeout");
+      wm.stopConfigPortal();
+      portalRunning = false;
+    }
+  }
+}
 
 bool reconnect_wifi(Adafruit_SSD1306 *display)
 {
@@ -133,7 +133,7 @@ void setup()
 void loop()
 {
   // Serial.println("[APP] Free memory: " + String(esp_get_free_heap_size()) + " bytes");
-  // connectWiFi();
+  connectWiFi();
 
   menu.update_status(wifi_connected, false, 1);
 
