@@ -60,8 +60,9 @@ MenuItem createRootMenu()
   MenuItem pair = menu.addItem("pair", bitmap_icons[6], callback2);
   MenuItem practice = menu.addItem("practice", bitmap_icons[6], callback2);
   MenuItem online = menu.addItem("online", bitmap_icons[6], callback2);
+  MenuItem play_back = menu.addItem(true);
   // back?
-  std::vector<MenuItem> play_submenu = {pair, practice, online};
+  std::vector<MenuItem> play_submenu = {pair, practice, online, play_back};
 
   // settings menu
   MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], callback2);

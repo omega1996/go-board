@@ -16,6 +16,7 @@ struct MenuItem
     bool (*callback)(Adafruit_SSD1306 *display);
     const unsigned char *icon;
     std::vector<MenuItem> subItems;
+    bool isBackButton;
 };
 
 class Menu
@@ -37,6 +38,7 @@ public:
 
     MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(Adafruit_SSD1306 *display));
     MenuItem addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu);
+    MenuItem addItem(bool isBackButton);
 
     void showPage(MenuItem *root, int selectedIndex);
 

@@ -50,7 +50,7 @@ void Menu::showPage(MenuItem *root, int selectedIndex)
   display.write(0x18);
   display.write(0xFE);
   display.println(root->subItems[prevIndex].label);
-  display.println(selectedIndex);
+  // display.println(selectedIndex);
 
   // current item
   display.drawBitmap(2, 32, root->subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
@@ -96,8 +96,10 @@ void Menu::prevItem()
 
 bool Menu::selectItem()
 {
+  Serial.print("H?");
   if (_callbackCalling)
   {
+    Serial.print("off callback");
     _callbackCalling = false;
     std::tuple<MenuItem *, int> lastItem = _menuStack.back();
     //_menuStack.pop_back();
@@ -105,8 +107,22 @@ bool Menu::selectItem()
     return false;
   }
 
+  if (_currentMenu.subItems[_currentIndex].isBackButton)
+  {
+    Serial.print("isBackButton");
+
+    // std::tuple<MenuItem *, int> lastItem = _menuStack.back();
+    // _menuStack.pop_back();
+    display.setTextSize(1);
+    display.setCursor(20, 50);
+    display.println("sdsd");
+    // showPage(std::get<0>(lastItem), std::get<1>(lastItem));
+    return false;
+  }
+
   if (_currentMenu.subItems[_currentIndex].callback != NULL)
   {
+    Serial.print("callback");
     _currentMenu.subItems[_currentIndex].callback(&display);
     _callbackCalling = true;
     return true;
@@ -114,7 +130,7 @@ bool Menu::selectItem()
 
   if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
   {
-
+    Serial.print("subItems");
     _menuStack.push_back(std::tuple<MenuItem *, int>{&_currentMenu, _currentIndex});
     showPage(&_currentMenu.subItems[_currentIndex], 0);
     return false;
@@ -162,6 +178,15 @@ MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuI
 {
   // Создаем MenuItem, инициализируя его поля
   MenuItem item = {label, nullptr, icon, *submenu};
+
+  return item;
+}
+
+MenuItem Menu::addItem(bool isBackButton)
+{
+
+  // Создаем MenuItem, инициализируя его поля
+  MenuItem item = {"back", nullptr, bitmap_icons[0], {}, isBackButton};
 
   return item;
 }
