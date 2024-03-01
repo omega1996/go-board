@@ -26,14 +26,15 @@ private:
     MenuItem _currentMenu;
     int _currentIndex;
 
-    MenuItem _items[MAX_MENU_ITEMS];
+    MenuItem _rootMenu;
+    int _parentIndex;
 
 public:
     Menu();
-    void init();
+    void init(MenuItem *root);
 
     MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data);
-    MenuItem addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu, size_t subItemsCount);
+    MenuItem addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu);
 
     void showPage(MenuItem *root, int selectedIndex);
 

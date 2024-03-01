@@ -48,12 +48,46 @@ bool callback2(void *data)
 {
   int *value = (int *)data;
   (*value)--;
+  // Serial.println(data);
   return true;
+}
+
+MenuItem createRootMenu()
+{
+  int value2 = 10;
+
+  // play menu
+  MenuItem pair = menu.addItem("pair", bitmap_icons[6], callback2, &value2);
+  MenuItem practice = menu.addItem("practice", bitmap_icons[6], callback2, &value2);
+  MenuItem online = menu.addItem("online", bitmap_icons[6], callback2, &value2);
+  // back?
+  std::vector<MenuItem> play_submenu = {pair, practice, online};
+
+  // settings menu
+  MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], callback2, &value2);
+  MenuItem ogs = menu.addItem("ogs", bitmap_icons[6], callback2, &value2);
+  MenuItem bright = menu.addItem("bright", bitmap_icons[6], callback2, &value2);
+  MenuItem colors = menu.addItem("colors", bitmap_icons[6], callback2, &value2);
+  MenuItem rules = menu.addItem("rules", bitmap_icons[6], callback2, &value2);
+  MenuItem timer = menu.addItem("timer", bitmap_icons[6], callback2, &value2);
+  MenuItem update = menu.addItem("update", bitmap_icons[6], callback2, &value2);
+  MenuItem size = menu.addItem("size", bitmap_icons[6], callback2, &value2);
+
+  std::vector<MenuItem> settings_submenu = {wifi, ogs, bright, colors, rules, timer, update, size};
+
+  MenuItem play = menu.addItem("play", bitmap_icons[6], &play_submenu);
+  MenuItem score = menu.addItem("score", bitmap_icons[6], callback2, &value2);
+  MenuItem settings = menu.addItem("settings", bitmap_icons[7], &settings_submenu);
+
+  std::vector<MenuItem> main_submenu = {play, score, settings};
+
+  MenuItem root = menu.addItem("Main Menu", bitmap_icons[5], &main_submenu);
+
+  return root;
 }
 
 void setup()
 {
-  menu.init();
   Serial.begin(115200);
 
   Serial.setDebugOutput(true);
@@ -78,16 +112,10 @@ void setup()
     portalRunning = true;
   }
 
-  int value2 = 10;
+  MenuItem root = createRootMenu();
+  menu.init(&root);
 
-  MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], callback2, &value2);
-  MenuItem blabla = menu.addItem("blabla", bitmap_icons[7], callback2, &value2);
-
-  std::vector<MenuItem> settings_submenu = {wifi, blabla};
-
-  MenuItem settings = menu.addItem("settings", bitmap_icons[5], &settings_submenu, 1);
-
-  menu.showPage(&settings, 0);
+  menu.showPage(&root, 0);
 
   Serial.println("Setup done");
 }

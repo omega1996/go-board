@@ -12,8 +12,10 @@ Menu::Menu()
 {
 }
 
-void Menu::init()
+void Menu::init(MenuItem *root)
 {
+
+  _rootMenu = *root;
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
   {
     Serial.println(F("SSD1306 allocation failed"));
@@ -94,6 +96,15 @@ void Menu::prevItem()
 
 bool Menu::selectItem()
 {
+  _parentIndex = _currentIndex;
+  if (_currentMenu.subItems[_currentIndex].callback != NULL)
+  {
+    _currentMenu.subItems[_currentIndex].callback(&_currentMenu.subItems[_currentIndex].data);
+  }
+  else if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
+  {
+    showPage(&_currentMenu.subItems[_currentIndex], 0);
+  }
   return true;
 }
 
@@ -133,7 +144,7 @@ MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(
   return item;
 }
 
-MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu, size_t subItemsCount)
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu)
 {
   // Создаем MenuItem, инициализируя его поля
   MenuItem item = {label, false, nullptr, nullptr, icon, *submenu};
