@@ -12,33 +12,40 @@ unsigned int startTime = millis();
 bool portalRunning = false;
 bool wifi_connected = false;
 
-void connectWiFi()
+// void connectWiFi()
+// {
+
+//   wifi_connected = wm.getWiFiIsSaved();
+//   if (portalRunning)
+//   {
+//     wm.process(); // do processing
+
+//     // check for timeout
+//     if ((millis() - startTime) > (timeout * 1000))
+//     {
+//       Serial.println("portaltimeout");
+//       wm.stopConfigPortal();
+//       portalRunning = false;
+//     }
+//   }
+// }
+
+bool reconnect_wifi(Adafruit_SSD1306 *display)
 {
 
-  wifi_connected = wm.getWiFiIsSaved();
-  if (portalRunning)
-  {
-    wm.process(); // do processing
-
-    // check for timeout
-    if ((millis() - startTime) > (timeout * 1000))
-    {
-      Serial.println("portaltimeout");
-      wm.stopConfigPortal();
-      portalRunning = false;
-    }
-  }
-}
-
-void reconnect_wifi()
-{
   wm.resetSettings();
-
   Serial.println(F("Button Pressed, Starting Config Portal"));
   wm.setConfigPortalBlocking(false);
   wm.startConfigPortal("GoBoard");
   startTime = millis();
   portalRunning = true;
+  display->clearDisplay();
+
+  display->setTextSize(1);
+  display->setCursor(10, 10);
+  display->print(F("Connect to GoBoard wifi hostpot"));
+  display->display();
+  return true;
 }
 
 // Menu menu();
@@ -49,6 +56,7 @@ bool callback2(Adafruit_SSD1306 *display)
 
   // Serial.println(data);
   display->clearDisplay();
+  display->display();
   return true;
 }
 
@@ -65,7 +73,7 @@ MenuItem createRootMenu()
   std::vector<MenuItem> play_submenu = {pair, practice, online, play_back};
 
   // settings menu
-  MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], callback2);
+  MenuItem wifi = menu.addItem("wifi", bitmap_icons[6], reconnect_wifi);
   MenuItem ogs = menu.addItem("ogs", bitmap_icons[6], callback2);
   MenuItem bright = menu.addItem("bright", bitmap_icons[6], callback2);
   MenuItem colors = menu.addItem("colors", bitmap_icons[6], callback2);
@@ -124,12 +132,14 @@ void setup()
 
 void loop()
 {
+  // Serial.println("[APP] Free memory: " + String(esp_get_free_heap_size()) + " bytes");
   // connectWiFi();
 
   menu.update_status(wifi_connected, false, 1);
 
   char readedChar = Serial.read();
   // Serial.println(readedChar);
+  Serial.println(readedChar);
 
   if (readedChar == 'u')
   {
@@ -138,12 +148,13 @@ void loop()
 
   if (readedChar == 'd')
   {
-    Serial.println(readedChar);
     menu.nextItem();
   }
 
   if (readedChar == 'o')
   {
     bool selected_item = menu.selectItem();
+    Serial.print("result: ");
+    Serial.println(selected_item);
   }
 }

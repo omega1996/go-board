@@ -35,13 +35,16 @@ void Menu::showPage()
 
   display.clearDisplay();
 
+  Serial.println("on show page:");
+  for (int i = 0; i < _menuStack.size(); i++)
+  {
+    Serial.println(_menuStack[i].parent->label);
+  }
+
   MenuState lastState = _menuStack.back();
 
-  MenuItem root = *lastState.parent;
-
+  MenuItem &root = *lastState.parent;
   int selectedIndex = lastState.selectedIndex;
-
-  Serial.print(selectedIndex);
 
   display.setTextColor(SSD1306_WHITE);
 
@@ -59,7 +62,6 @@ void Menu::showPage()
   display.write(0xFE);
   display.println(root.subItems[prevIndex].label);
   // display.println(selectedIndex);
-
   // current item
   display.drawBitmap(2, 32, root.subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
   display.drawRoundRect(0, 29, display.width(), 22, 5, SSD1306_WHITE);
@@ -67,7 +69,6 @@ void Menu::showPage()
   display.setCursor(25, 32);
   // display.println(F("asddad"));
   display.println(root.subItems[selectedIndex].label);
-
   // next item
   int nextIndex = selectedIndex + 1;
   if (nextIndex >= root.subItems.size())
@@ -86,7 +87,7 @@ void Menu::nextItem()
 {
   MenuState &lastState = _menuStack.back();
 
-  MenuItem root = *lastState.parent;
+  MenuItem &root = *lastState.parent;
 
   lastState.selectedIndex++;
   if (lastState.selectedIndex >= root.subItems.size())
@@ -103,7 +104,7 @@ void Menu::prevItem()
 {
   MenuState &lastState = _menuStack.back();
 
-  MenuItem root = *lastState.parent;
+  MenuItem &root = *lastState.parent;
 
   lastState.selectedIndex--;
   if (lastState.selectedIndex < 0)
@@ -117,15 +118,13 @@ bool Menu::selectItem()
 {
 
   MenuState lastState = _menuStack.back();
+  MenuItem &root = *lastState.parent;
 
-  MenuItem root = *lastState.parent;
 
   int selectedIndex = lastState.selectedIndex;
 
-  Serial.println("H?:");
   if (_callbackCalling)
   {
-    Serial.print("off callback");
     _callbackCalling = false;
 
     showPage();
@@ -134,7 +133,6 @@ bool Menu::selectItem()
 
   if (root.subItems[selectedIndex].isBackButton)
   {
-    Serial.print("isBackButton");
 
     if (!_menuStack.empty())
     {
@@ -146,7 +144,6 @@ bool Menu::selectItem()
 
   if (root.subItems[selectedIndex].callback != NULL)
   {
-    Serial.print("callback");
     root.subItems[selectedIndex].callback(&display);
     _callbackCalling = true;
     return true;
@@ -154,7 +151,6 @@ bool Menu::selectItem()
 
   if (root.subItems[selectedIndex].subItems.size() > 0)
   {
-    Serial.print("subItems");
     _menuStack.push_back({&root.subItems[selectedIndex], 0});
     showPage();
     return false;
@@ -168,11 +164,10 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   display.setTextSize(1);
   display.setCursor(4, 4);
 
-  MenuState lastState = _menuStack.back();
-
-  MenuItem root = *lastState.parent;
-
-  display.print(root.label);
+  if (_menuStack.size() > 0)
+  {
+    display.print(_menuStack[_menuStack.size() - 1].parent->label);
+  }
 
   if (wifi)
   {
@@ -182,7 +177,6 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   {
     display.drawBitmap(88, 4, epd_bitmap_status[1], 8, 8, SSD1306_WHITE);
   }
-
   if (ogs)
   {
     display.drawBitmap(102, 4, epd_bitmap_status[2], 8, 8, SSD1306_WHITE);
@@ -191,7 +185,6 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   {
     display.drawBitmap(102, 4, epd_bitmap_status[3], 8, 8, SSD1306_WHITE);
   }
-
   display.drawBitmap(116, 4, epd_bitmap_battery[battery], 8, 8, SSD1306_WHITE);
   display.display();
 }
