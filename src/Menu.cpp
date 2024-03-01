@@ -99,7 +99,7 @@ bool Menu::selectItem()
   _parentIndex = _currentIndex;
   if (_currentMenu.subItems[_currentIndex].callback != NULL)
   {
-    _currentMenu.subItems[_currentIndex].callback(&_currentMenu.subItems[_currentIndex].data);
+    _currentMenu.subItems[_currentIndex].callback(&display);
   }
   else if (_currentMenu.subItems[_currentIndex].subItems.size() > 0)
   {
@@ -138,16 +138,16 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   display.display();
 }
 
-MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(void *), void *data)
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(Adafruit_SSD1306 *display))
 {
-  MenuItem item = {label, false, callback, data, icon};
+  MenuItem item = {label, callback, icon};
   return item;
 }
 
 MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu)
 {
   // Создаем MenuItem, инициализируя его поля
-  MenuItem item = {label, false, nullptr, nullptr, icon, *submenu};
+  MenuItem item = {label, nullptr, icon, *submenu};
 
   return item;
 }
