@@ -4,25 +4,21 @@
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SSD1306_NO_SPLASH
 
-
 #include "Menu.h"
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int _current_item = 0;
-int _prev_item = 0;
-int _next_item = 0;
-
-// menu
-// 0: main menu,
-// 1: play submenu,
-// 2: calculate
-// 3: settings submenu
-// 4: wifi
-int _current_menu_level = 0;
-
-void Menu::init()
+Menu::Menu()
 {
+}
+
+void Menu::init(MenuItem *root)
+{
+
+  _rootMenu = *root;
+
+  _menuStack.clear();
+  _menuStack.push_back({&_rootMenu, 0});
   if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
   {
     Serial.println(F("SSD1306 allocation failed"));
@@ -34,238 +30,126 @@ void Menu::init()
   display.display();
 }
 
-void Menu::_calculate_items()
-{
-  int count_length;
-  switch (_current_menu_level)
-  {
-  case 0:
-    count_length = 3;
-    break;
-  case 1:
-    count_length = 3;
-    break;
-  case 2:
-    count_length = 1;
-    break;
-  case 3:
-    count_length = 4;
-    break;
-  }
-  _prev_item = _current_item - 1;
-  if (_prev_item < 0)
-  {
-    _prev_item = count_length - 1;
-  }
-  _next_item = _current_item + 1;
-  if (_next_item >= count_length)
-  {
-    _next_item = 0;
-  }
-}
-
-void Menu::_page_display(int icons[], char names[][20])
+void Menu::showPage()
 {
 
-  _calculate_items();
+  display.clearDisplay();
+
+  MenuState lastState = _menuStack.back();
+
+  MenuItem &root = *lastState.parent;
+  int selectedIndex = lastState.selectedIndex;
+
   display.setTextColor(SSD1306_WHITE);
 
   // display.drawRect(0, 0, display.width(), 16, SSD1306_WHITE);
 
   // previous item
+  int prevIndex = selectedIndex - 1;
+  if (prevIndex < 0)
+  {
+    prevIndex = root.subItems.size() - 1;
+  }
   display.setTextSize(1);
   display.setCursor(10, 17);
   display.write(0x18);
   display.write(0xFE);
-  display.println(names[_prev_item]);
-
+  display.println(root.subItems[prevIndex].label);
+  // display.println(selectedIndex);
   // current item
-  display.drawBitmap(2, 32, bitmap_icons[icons[_current_item]], 16, 16, SSD1306_WHITE);
+  display.drawBitmap(2, 32, root.subItems[selectedIndex].icon, 16, 16, SSD1306_WHITE);
   display.drawRoundRect(0, 29, display.width(), 22, 5, SSD1306_WHITE);
   display.setTextSize(2);
   display.setCursor(25, 32);
   // display.println(F("asddad"));
-  display.println(names[_current_item]);
-
+  display.println(root.subItems[selectedIndex].label);
   // next item
+  int nextIndex = selectedIndex + 1;
+  if (nextIndex >= root.subItems.size())
+  {
+    nextIndex = 0;
+  }
   display.setTextSize(1);
   display.setCursor(10, 55);
   display.write(0x19);
   display.write(0xFE);
-  display.println(names[_next_item]);
-}
-
-void Menu::show_calculate_page()
-{
-  display.setCursor(0, 24);
-  display.setTextSize(1);
-  display.println("Please wait...");
-}
-
-void Menu::next_item()
-{
-  _current_item = _next_item;
-  show_page();
-}
-
-void Menu::prev_item()
-{
-  _current_item = _prev_item;
-  show_page();
-}
-
-void Menu::show_page()
-{
-  display.setTextColor(SSD1306_WHITE);
-  display.clearDisplay();
-
-  // _calculate_items();
-
-  switch (_current_menu_level)
-  {
-  case 0:
-    show_main_page();
-    break;
-  case 1:
-    show_play_page();
-    break;
-  case 2:
-    show_calculate_page();
-    break;
-  case 3:
-    show_settings_page();
-    break;
-  case 4:
-    show_wifi_page();
-  }
-
+  display.println(root.subItems[nextIndex].label);
   display.display();
-};
-
-void Menu::show_main_page()
-{
-  char names[3][20] = {{"Play"}, {"Score"}, {"Settings"}};
-  int icons[3] = {0, 1, 2};
-  _page_display(icons, names);
 }
 
-void Menu::show_play_page()
+void Menu::nextItem()
 {
-  char names[3][20] = {{"Pair"}, {"Solo"}, {"Practice"}};
-  int icons[3] = {4, 3, 5};
-  _page_display(icons, names);
-}
+  MenuState &lastState = _menuStack.back();
 
-void Menu::show_settings_page()
-{
-  int icons[4] = {6, 7, 8, 9};
-  char names[4][20] = {{"Wi-Fi"}, {"Bright"}, {"Rules"}, {"Colors"}};
-  _page_display(icons, names);
-}
+  MenuItem &root = *lastState.parent;
 
-void Menu::show_wifi_page()
-{
-  display.setCursor(0, 24);
-  display.setTextSize(1);
-  display.println("Connect to WiFi");
-  display.println("hotspot GoBoard!");
-};
-
-int Menu::select_item()
-{
-  switch (_current_menu_level)
+  lastState.selectedIndex++;
+  if (lastState.selectedIndex >= root.subItems.size())
   {
-  // main menu
-  case 0:
-    switch (_current_item)
-    {
-      // play
-    case 0:
-      _current_menu_level = 1;
-      break;
-
-      // score
-    case 1:
-      _current_menu_level = 2;
-      break;
-
-      // settings
-    case 2:
-      _current_menu_level = 3;
-      break;
-    }
-
-    break;
-
-  // play submenu
-  case 1:
-    switch (_current_item)
-    {
-      // pair
-    case 0:
-      _current_menu_level = 0;
-      break;
-
-      // solo
-    case 1:
-      _current_menu_level = 0;
-      break;
-
-      // practice
-    case 2:
-      _current_menu_level = 0;
-      break;
-    }
-
-    break;
-
-  // score submenu
-  case 2:
-    switch (_current_item)
-    {
-    case 0:
-      _current_menu_level = 0; // go to main menu, no variants
-      break;
-    }
-
-    break;
-  // Settings submenu
-  case 3:
-    switch (_current_item)
-    {
-      // wifi
-    case 0:
-      _current_menu_level = 4;
-      break;
-
-      // brightness
-    case 1:
-      _current_menu_level = 0;
-      break;
-
-      // rules
-    case 2:
-      _current_menu_level = 0;
-      break;
-
-      // colors
-    case 4:
-      _current_menu_level = 0;
-      break;
-    }
-
-    break;
-
-  // wifi
-  case 4:
-    _current_menu_level = 0; // go to main menu, no variants
-
-    break;
+    lastState.selectedIndex = 0;
   }
-  _current_item = 0;
-  show_page();
 
-  return _current_menu_level;
+  // lastState.selectedIndex = nextIndex;
+
+  showPage();
+}
+
+void Menu::prevItem()
+{
+  MenuState &lastState = _menuStack.back();
+
+  MenuItem &root = *lastState.parent;
+
+  lastState.selectedIndex--;
+  if (lastState.selectedIndex < 0)
+  {
+    lastState.selectedIndex = root.subItems.size() - 1;
+  }
+  showPage();
+}
+
+bool Menu::selectItem()
+{
+
+  MenuState lastState = _menuStack.back();
+  MenuItem &root = *lastState.parent;
+
+
+  int selectedIndex = lastState.selectedIndex;
+
+  if (_callbackCalling)
+  {
+    _callbackCalling = false;
+
+    showPage();
+    return false;
+  }
+
+  if (root.subItems[selectedIndex].isBackButton)
+  {
+
+    if (!_menuStack.empty())
+    {
+      _menuStack.pop_back();
+      showPage();
+    }
+    return false;
+  }
+
+  if (root.subItems[selectedIndex].callback != NULL)
+  {
+    root.subItems[selectedIndex].callback(&display);
+    _callbackCalling = true;
+    return true;
+  }
+
+  if (root.subItems[selectedIndex].subItems.size() > 0)
+  {
+    _menuStack.push_back({&root.subItems[selectedIndex], 0});
+    showPage();
+    return false;
+  }
+  return false;
 }
 
 void Menu::update_status(bool wifi, bool ogs, int battery)
@@ -273,23 +157,10 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   display.fillRect(0, 0, 128, 16, BLACK);
   display.setTextSize(1);
   display.setCursor(4, 4);
-  switch (_current_menu_level)
+
+  if (_menuStack.size() > 0)
   {
-  case 0:
-    display.print(F("Main Menu"));
-    break;
-  case 1:
-    display.print(F("Play"));
-    break;
-  case 2:
-    display.print(F("Score"));
-    break;
-  case 3:
-    display.print(F("Settings"));
-    break;
-  case 4:
-    display.print(F("WiFi connect"));
-    break;
+    display.print(_menuStack[_menuStack.size() - 1].parent->label);
   }
 
   if (wifi)
@@ -300,7 +171,6 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   {
     display.drawBitmap(88, 4, epd_bitmap_status[1], 8, 8, SSD1306_WHITE);
   }
-
   if (ogs)
   {
     display.drawBitmap(102, 4, epd_bitmap_status[2], 8, 8, SSD1306_WHITE);
@@ -309,7 +179,29 @@ void Menu::update_status(bool wifi, bool ogs, int battery)
   {
     display.drawBitmap(102, 4, epd_bitmap_status[3], 8, 8, SSD1306_WHITE);
   }
-
   display.drawBitmap(116, 4, epd_bitmap_battery[battery], 8, 8, SSD1306_WHITE);
   display.display();
+}
+
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, bool (*callback)(Adafruit_SSD1306 *display))
+{
+  MenuItem item = {label, callback, icon};
+  return item;
+}
+
+MenuItem Menu::addItem(const char *label, const uint8_t *icon, std::vector<MenuItem> *submenu)
+{
+  // Создаем MenuItem, инициализируя его поля
+  MenuItem item = {label, nullptr, icon, *submenu};
+
+  return item;
+}
+
+MenuItem Menu::addItem(bool isBackButton)
+{
+
+  // Создаем MenuItem, инициализируя его поля
+  MenuItem item = {"back", nullptr, bitmap_icons[10], {}, isBackButton};
+
+  return item;
 }
