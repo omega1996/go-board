@@ -4,6 +4,7 @@
 #include "MenuIcons.h"
 
 #include "Menu.h"
+#include "CallbackManager.h"
 
 WiFiManager wm;
 
@@ -52,6 +53,7 @@ bool reconnect_wifi(Adafruit_SSD1306 *display)
 
 // Menu menu();
 Menu menu = Menu();
+CallbackManager manager;
 
 bool callback2(Adafruit_SSD1306 *display)
 {
@@ -92,6 +94,16 @@ bool start_game(Adafruit_SSD1306 *display)
 bool set_timer(Adafruit_SSD1306 *display)
 {
   display->clearDisplay();
+
+  auto mySelectCallback = []()
+  {
+    Serial.print("timerSelect");
+  };
+
+  // manager.setNextCallback(myNextCallback);
+  // manager.setPrevCallback(myPrevCallback);
+  manager.setSelectCallback(mySelectCallback);
+
   return true;
 }
 bool set_rules(Adafruit_SSD1306 *display)
@@ -193,11 +205,19 @@ void loop()
 
   if (readedChar == 'o')
   {
-    bool selected_item = menu.selectItem();
-
-    if (selected_item)
+    if (!menuLocked)
     {
-      menuLocked = true;
+
+      bool selected_item = menu.selectItem();
+
+      if (selected_item)
+      {
+        menuLocked = true;
+      }
+    }
+    else
+    {
+      manager.select();
     }
   }
 }
