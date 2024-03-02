@@ -92,6 +92,11 @@ bool set_timer(Adafruit_SSD1306 *display)
   display->clearDisplay();
   return true;
 }
+bool set_rules(Adafruit_SSD1306 *display)
+{
+  display->clearDisplay();
+  return true;
+}
 
 MenuItem createRootMenu()
 {
@@ -100,8 +105,9 @@ MenuItem createRootMenu()
   // pair menu
   MenuItem pair_start = menu.addItem("start", bitmap_icons[0], start_game);
   MenuItem pair_timer = menu.addItem("timer", bitmap_icons[12], set_timer);
+  MenuItem pair_rules = menu.addItem("rules", bitmap_icons[8], set_rules);
 
-  std::vector<MenuItem> start_submenu = {pair_start, pair_timer, back};
+  std::vector<MenuItem> start_submenu = {pair_start, pair_timer, pair_rules, back};
   // play menu
   MenuItem pair = menu.addItem("pair", bitmap_icons[4], &start_submenu);
   MenuItem practice = menu.addItem("practice", bitmap_icons[5], callback2);
