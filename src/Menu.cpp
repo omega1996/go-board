@@ -35,12 +35,6 @@ void Menu::showPage()
 
   display.clearDisplay();
 
-  Serial.println("on show page:");
-  for (int i = 0; i < _menuStack.size(); i++)
-  {
-    Serial.println(_menuStack[i].parent->label);
-  }
-
   MenuState lastState = _menuStack.back();
 
   MenuItem &root = *lastState.parent;
