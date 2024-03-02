@@ -28,13 +28,7 @@ private:
         MenuItem *parent;
         int selectedIndex;
     };
-
-    // MenuItem _currentMenu;
-    // int _currentIndex;
-
     MenuItem _rootMenu;
-
-    bool _callbackCalling;
 
     std::vector<MenuState> _menuStack;
 

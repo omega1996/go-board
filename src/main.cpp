@@ -12,6 +12,8 @@ unsigned int startTime = millis();
 bool portalRunning = false;
 bool wifi_connected = false;
 
+bool menuLocked = false;
+
 void connectWiFi()
 {
 
@@ -33,7 +35,7 @@ void connectWiFi()
 bool reconnect_wifi(Adafruit_SSD1306 *display)
 {
 
-  wm.resetSettings();
+  // wm.resetSettings();
   Serial.println(F("Button Pressed, Starting Config Portal"));
   wm.setConfigPortalBlocking(false);
   wm.startConfigPortal("GoBoard");
@@ -192,5 +194,10 @@ void loop()
   if (readedChar == 'o')
   {
     bool selected_item = menu.selectItem();
+
+    if (selected_item)
+    {
+      menuLocked = true;
+    }
   }
 }

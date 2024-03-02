@@ -114,16 +114,7 @@ bool Menu::selectItem()
   MenuState lastState = _menuStack.back();
   MenuItem &root = *lastState.parent;
 
-
   int selectedIndex = lastState.selectedIndex;
-
-  if (_callbackCalling)
-  {
-    _callbackCalling = false;
-
-    showPage();
-    return false;
-  }
 
   if (root.subItems[selectedIndex].isBackButton)
   {
@@ -139,7 +130,6 @@ bool Menu::selectItem()
   if (root.subItems[selectedIndex].callback != NULL)
   {
     root.subItems[selectedIndex].callback(&display);
-    _callbackCalling = true;
     return true;
   }
 
