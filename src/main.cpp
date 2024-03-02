@@ -91,19 +91,51 @@ bool start_game(Adafruit_SSD1306 *display)
   return true;
 }
 
+int timer_base_minutes = 5;
+int timer_base_seconds = 0;
+
 bool set_timer(Adafruit_SSD1306 *display)
 {
   display->clearDisplay();
 
-  auto mySelectCallback = []()
+  display->setCursor(5, 20);
+  display->setTextSize(2);
+
+  display->print(timer_base_minutes);
+  display->print(":");
+  display->print(timer_base_seconds);
+
+  bool selectMode = false;
+
+  if (!selectMode)
+  {
+    auto displayCallback = [&display]()
+    {
+      display->drawLine(5, 28, 10, 28, WHITE);
+      display->drawRoundRect(0, 29, display->width(), 22, 5, SSD1306_WHITE);
+
+      display->display();
+    };
+    manager.setDisplayCallback(displayCallback);
+  }
+  else
+  {
+    auto displayCallback = []()
+    {
+      Serial.print("timerSelect");
+    };
+    manager.setDisplayCallback(displayCallback);
+  }
+
+  auto timerSelectCallback = []()
   {
     Serial.print("timerSelect");
   };
 
   // manager.setNextCallback(myNextCallback);
   // manager.setPrevCallback(myPrevCallback);
-  manager.setSelectCallback(mySelectCallback);
-
+  manager.setSelectCallback(timerSelectCallback);
+  manager.display();
   return true;
 }
 bool set_rules(Adafruit_SSD1306 *display)
@@ -195,12 +227,29 @@ void loop()
 
   if (readedChar == 'u')
   {
-    menu.prevItem();
+
+    if (!menuLocked)
+    {
+
+      menu.prevItem();
+    }
+    else
+    {
+      manager.prev();
+    }
   }
 
   if (readedChar == 'd')
   {
-    menu.nextItem();
+    if (!menuLocked)
+    {
+
+      menu.nextItem();
+    }
+    else
+    {
+      manager.next();
+    }
   }
 
   if (readedChar == 'o')

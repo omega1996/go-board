@@ -7,11 +7,17 @@ CallbackManager::CallbackManager()
     nextCallback = nullptr;
     prevCallback = nullptr;
     selectCallback = nullptr;
+    displayCallback = nullptr;
 }
 
 void CallbackManager::setNextCallback(std::function<void()> callback)
 {
     nextCallback = callback;
+}
+
+void CallbackManager::setDisplayCallback(std::function<void()> callback)
+{
+    displayCallback = callback;
 }
 
 void CallbackManager::setPrevCallback(std::function<void()> callback)
@@ -69,5 +75,17 @@ bool CallbackManager::select()
     {
         // Если колбэк не установлен, выполняем какую-то другую логику по умолчанию
         return false;
+    }
+}
+
+void CallbackManager::display()
+{
+    if (displayCallback)
+    {
+        // вызываем колбэк отрисовки
+        displayCallback();
+    }
+    else
+    {
     }
 }
