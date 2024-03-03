@@ -105,35 +105,39 @@ bool set_timer(Adafruit_SSD1306 *display)
   display->print(":");
   display->print(timer_base_seconds);
 
-  bool selectMode = false;
+  static bool selectMode = false;
 
-  if (!selectMode)
+  auto displayCallback = [display]()
   {
-    auto displayCallback = [&display]()
-    {
-      display->drawLine(5, 28, 10, 28, WHITE);
-      display->drawRoundRect(0, 29, display->width(), 22, 5, SSD1306_WHITE);
+    Serial.println(selectMode ? "1" : "0");
+    display->drawLine(5, 28, 10, 28, WHITE);
+    Serial.println("timer display:");
+    Serial.println(selectMode ? "1" : "0");
+    display->display();
+  };
+  manager.setDisplayCallback(displayCallback);
 
-      display->display();
-    };
-    manager.setDisplayCallback(displayCallback);
-  }
-  else
+  auto timerSelectCallback = [display]()
   {
-    auto displayCallback = []()
-    {
-      Serial.print("timerSelect");
-    };
-    manager.setDisplayCallback(displayCallback);
-  }
-
-  auto timerSelectCallback = []()
+    Serial.println(selectMode ? "1" : "0");
+    selectMode = !selectMode;
+    display->drawRoundRect(0, 29, display->width(), 22, 5, SSD1306_WHITE);
+    Serial.println(selectMode ? "1" : "0");
+    Serial.println("timerSelect");
+  };
+  auto myNextCallback = [display]()
   {
-    Serial.print("timerSelect");
+    Serial.println("timer next");
+    Serial.println(selectMode ? "1" : "0");
+  };
+  auto myPrevCallback = [display]()
+  {
+    Serial.println("timer prev");
+    Serial.println(selectMode ? "1" : "0");
   };
 
-  // manager.setNextCallback(myNextCallback);
-  // manager.setPrevCallback(myPrevCallback);
+  manager.setNextCallback(myNextCallback);
+  manager.setPrevCallback(myPrevCallback);
   manager.setSelectCallback(timerSelectCallback);
   manager.display();
   return true;
