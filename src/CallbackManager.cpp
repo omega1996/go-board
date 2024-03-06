@@ -30,6 +30,11 @@ void CallbackManager::setSelectCallback(std::function<void()> callback)
     selectCallback = callback;
 }
 
+void CallbackManager::setMoveCallback(std::function<void()> callback)
+{
+    moveCallback = callback;
+}
+
 bool CallbackManager::next()
 {
     // Проверяем, установлен ли указатель на колбэк next
@@ -84,6 +89,18 @@ void CallbackManager::display()
     {
         // вызываем колбэк отрисовки
         displayCallback();
+    }
+    else
+    {
+    }
+}
+
+void CallbackManager::move()
+{
+    if (moveCallback)
+    {
+        // вызываем колбэк хода
+        moveCallback();
     }
     else
     {

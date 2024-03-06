@@ -15,6 +15,10 @@ bool wifi_connected = false;
 
 bool menuLocked = false;
 
+int timer_base_seconds = 600;
+int timer_add_seconds = 30;
+int periods = 5;
+
 void connectWiFi()
 {
 
@@ -86,13 +90,33 @@ bool start_game(Adafruit_SSD1306 *display)
 
   MenuItem gameMenu = createGameMenu();
   menu.init(&gameMenu);
-  menu.showPage();
-  // display->display();
-  return true;
+
+  display->setCursor(0, 20);
+
+  display->print(timer_base_seconds);
+
+  display->display();
+  return false;
 }
 
-int timer_base_minutes = 5;
-int timer_base_seconds = 0;
+bool start_blitz_game(Adafruit_SSD1306 *display)
+{
+  timer_base_seconds = 30;
+  timer_base_seconds = 5;
+  return start_game(display);
+}
+bool start_live_game(Adafruit_SSD1306 *display)
+{
+  timer_base_seconds = 600;
+  timer_base_seconds = 30;
+  return start_game(display);
+}
+bool start_long_game(Adafruit_SSD1306 *display)
+{
+  timer_base_seconds = 86400;
+  timer_base_seconds = 3600;
+  return start_game(display);
+}
 
 bool set_timer(Adafruit_SSD1306 *display)
 {
@@ -101,9 +125,9 @@ bool set_timer(Adafruit_SSD1306 *display)
   display->setCursor(5, 20);
   display->setTextSize(2);
 
-  display->print(timer_base_minutes);
-  display->print(":");
-  display->print(timer_base_seconds);
+  // display->print(timer_base_minutes);
+  // display->print(":");
+  // display->print(timer_base_seconds);
 
   static bool selectMode = false;
 
@@ -142,10 +166,16 @@ bool set_timer(Adafruit_SSD1306 *display)
   manager.display();
   return true;
 }
+
 bool set_rules(Adafruit_SSD1306 *display)
 {
-  display->clearDisplay();
-  return true;
+
+  auto myPrevCallback = []()
+  {
+    // menuLocked = false;
+  };
+  manager.setSelectCallback(myPrevCallback);
+  return false;
 }
 
 MenuItem createRootMenu()
@@ -153,11 +183,11 @@ MenuItem createRootMenu()
   MenuItem back = menu.addItem(true);
 
   // pair menu
-  MenuItem pair_start = menu.addItem("start", bitmap_icons[0], start_game);
-  MenuItem pair_timer = menu.addItem("timer", bitmap_icons[12], set_timer);
-  MenuItem pair_rules = menu.addItem("rules", bitmap_icons[8], set_rules);
+  MenuItem blitz_start = menu.addItem("blitz", bitmap_icons[17], start_blitz_game);
+  MenuItem live_start = menu.addItem("live", bitmap_icons[18], start_live_game);
+  MenuItem long_start = menu.addItem("long", bitmap_icons[19], start_long_game);
 
-  std::vector<MenuItem> start_submenu = {pair_start, pair_timer, pair_rules, back};
+  std::vector<MenuItem> start_submenu = {blitz_start, live_start, long_start, back};
   // play menu
   MenuItem pair = menu.addItem("pair", bitmap_icons[4], &start_submenu);
   MenuItem practice = menu.addItem("practice", bitmap_icons[5], callback2);
@@ -228,6 +258,16 @@ void loop()
   menu.update_status(wifi_connected, false, 1);
 
   char readedChar = Serial.read();
+
+  if (readedChar == 'w')
+  {
+    // ход белого
+  }
+
+  if (readedChar == 'b')
+  {
+    // ход черного
+  }
 
   if (readedChar == 'u')
   {
