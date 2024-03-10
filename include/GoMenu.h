@@ -20,6 +20,8 @@ static int black_periods = periods;
 static int white_seconds = timer_base_seconds;
 static int white_periods = periods;
 
+static bool blackMove = true;
+
 unsigned int timeout = 120; // seconds to run for wifi
 unsigned int startTime = millis();
 
@@ -96,26 +98,37 @@ bool start_game(Adafruit_SSD1306 *display)
 bool start_blitz_game(Adafruit_SSD1306 *display)
 {
     timer_base_seconds = 30;
-    timer_base_seconds = 5;
+    timer_add_seconds = 5;
     return start_game(display);
 }
 bool start_live_game(Adafruit_SSD1306 *display)
 {
     timer_base_seconds = 600;
-    timer_base_seconds = 30;
+    timer_add_seconds = 30;
     return start_game(display);
 }
 bool start_long_game(Adafruit_SSD1306 *display)
 {
     timer_base_seconds = 86400;
-    timer_base_seconds = 3600;
+    timer_add_seconds = 3600;
     return start_game(display);
 }
 
 bool white_timer(void *period_count)
 {
     Serial.print("white timer");
+
     white_seconds--;
+    if (white_seconds < 0)
+    {
+        white_seconds = timer_add_seconds;
+        white_periods--;
+    }
+
+    if (white_periods < 0)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -123,6 +136,16 @@ bool black_timer(void *period_count)
 {
     Serial.print("black timer");
     black_seconds--;
+    if (black_seconds < 0)
+    {
+        black_seconds = timer_add_seconds;
+        black_periods--;
+    }
+
+    if (black_periods < 0)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -138,31 +161,57 @@ bool show_timer(Adafruit_SSD1306 *display)
 
     white_seconds = timer_base_seconds;
     white_periods = periods;
-    static bool blackMove = true;
 
-    auto black_move = timer_black.every(1000, black_timer, (void *)black_periods);
-    auto white_move = timer_white.every(1000, white_timer, (void *)white_periods);
+    auto black_move = timer_black.every(1000, black_timer);
+    auto white_move = timer_white.every(1000, white_timer);
 
     auto displayCallback = [display]()
     {
         display->clearDisplay();
         display->setTextSize(1);
 
-        display->setCursor(0, 20);
+        display->setCursor(5, 20);
 
         if (blackMove)
         {
-            display->print(black_seconds);
+
+            display->println("Black move");
+            display->setTextSize(2);
+            display->setCursor(5, 27);
+            int minutes = black_seconds / 60;
+            int seconds = black_seconds % 60;
+            display->print(minutes);
+            display->print(":");
+            display->println(seconds);
+            display->setTextSize(1);
+            display->print("periods left: ");
+            display->print(black_periods);
             timer_black.tick();
         }
         else
         {
-            display->print(white_seconds);
+            display->println("White move");
+            display->setTextSize(2);
+            display->setCursor(5, 27);
+            int minutes = white_seconds / 60;
+            int seconds = white_seconds % 60;
+            display->print(minutes);
+            display->print(":");
+            display->println(seconds);
+            display->print("periods left: ");
+            display->print(white_periods);
             timer_white.tick();
         }
     };
     manager.setDisplayCallback(displayCallback);
     Serial.print("set display callback");
+
+    auto makeMoveCallback = []()
+    {
+        blackMove = !blackMove;
+    };
+    manager.setMoveCallback(makeMoveCallback);
+
     display->display();
     return false;
 }

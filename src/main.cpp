@@ -5,7 +5,6 @@
 #include "CallbackManager.h"
 #include "GoMenu.h"
 
-
 bool menuLocked = false;
 
 bool set_rules(Adafruit_SSD1306 *display)
@@ -69,11 +68,13 @@ void loop()
   if (readedChar == 'w')
   {
     // ход белого
+    manager.move();
   }
 
   if (readedChar == 'b')
   {
     // ход черного
+    manager.move();
   }
 
   if (readedChar == 'u')
