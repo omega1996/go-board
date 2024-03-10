@@ -5,11 +5,24 @@
 #include "CallbackManager.h"
 #include "WiFiManager.h"
 
+#include <arduino-timer.h>
+
+auto timer_black = timer_create_default();
+auto timer_white = timer_create_default();
+
 int timer_base_seconds = 600;
 int timer_add_seconds = 30;
 int periods = 5;
-unsigned int timeout = 120; // seconds to run for
+
+static int black_seconds = timer_base_seconds;
+static int black_periods = periods;
+
+static int white_seconds = timer_base_seconds;
+static int white_periods = periods;
+
+unsigned int timeout = 120; // seconds to run for wifi
 unsigned int startTime = millis();
+
 bool portalRunning = false;
 bool wifi_connected = false;
 
@@ -77,7 +90,7 @@ bool start_game(Adafruit_SSD1306 *display)
     // callbacks call menu
     // back button shows timer again
 
-    return false;
+    return true;
 }
 
 bool start_blitz_game(Adafruit_SSD1306 *display)
@@ -99,6 +112,20 @@ bool start_long_game(Adafruit_SSD1306 *display)
     return start_game(display);
 }
 
+bool white_timer(void *period_count)
+{
+    Serial.print("white timer");
+    white_seconds--;
+    return true;
+}
+
+bool black_timer(void *period_count)
+{
+    Serial.print("black timer");
+    black_seconds--;
+    return true;
+}
+
 bool show_timer(Adafruit_SSD1306 *display)
 {
     display->clearDisplay();
@@ -106,13 +133,36 @@ bool show_timer(Adafruit_SSD1306 *display)
 
     display->setCursor(0, 20);
 
-    auto displayCallback = [display]() {
+    black_seconds = timer_base_seconds;
+    black_periods = periods;
 
+    white_seconds = timer_base_seconds;
+    white_periods = periods;
+    static bool blackMove = true;
+
+    auto black_move = timer_black.every(1000, black_timer, (void *)black_periods);
+    auto white_move = timer_white.every(1000, white_timer, (void *)white_periods);
+
+    auto displayCallback = [display]()
+    {
+        display->clearDisplay();
+        display->setTextSize(1);
+
+        display->setCursor(0, 20);
+
+        if (blackMove)
+        {
+            display->print(black_seconds);
+            timer_black.tick();
+        }
+        else
+        {
+            display->print(white_seconds);
+            timer_white.tick();
+        }
     };
     manager.setDisplayCallback(displayCallback);
-
-    display->print(timer_base_seconds);
-
+    Serial.print("set display callback");
     display->display();
     return false;
 }

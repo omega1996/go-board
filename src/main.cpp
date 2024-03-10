@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#include "WiFiManager.h"
 #include <ESPmDNS.h>
-#include "MenuIcons.h"
 
 #include "Menu.h"
 #include "CallbackManager.h"
@@ -59,8 +57,8 @@ void loop()
 {
   // Serial.println("[APP] Free memory: " + String(esp_get_free_heap_size()) + " bytes");
   connectWiFi();
-
   menu.update_status(wifi_connected, false, 1);
+
   if (menuLocked)
   {
     manager.display();
