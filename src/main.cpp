@@ -4,13 +4,17 @@
 #include "MenuIcons.h"
 
 #include "Menu.h"
+#include "CallbackManager.h"
+#include "GoMenu.h"
+#include "GyverButton.h"
 
-WiFiManager wm;
+#define DOWN_BTN_PIN 1
+#define OK_BTN_PIN 3
+#define UP_BTN_PIN 2
 
-unsigned int timeout = 120; // seconds to run for
-unsigned int startTime = millis();
-bool portalRunning = false;
-bool wifi_connected = false;
+GButton downButton(DOWN_BTN_PIN);
+GButton okButton(OK_BTN_PIN);
+GButton upButton(UP_BTN_PIN);
 
 bool menuLocked = false;
 
@@ -181,17 +185,31 @@ void loop()
 
   char readedChar = Serial.read();
 
-  if (readedChar == 'u')
+  if (readedChar == 'w')
+  {
+    // ход белого
+    manager.move();
+  }
+
+  if (readedChar == 'b')
+  {
+    // ход черного
+    manager.move();
+  }
+  upButton.tick();
+  if (upButton.isClick())
   {
     menu.prevItem();
   }
 
-  if (readedChar == 'd')
+  downButton.tick();
+  if (downButton.isClick())
   {
     menu.nextItem();
   }
 
-  if (readedChar == 'o')
+  okButton.tick();
+  if (okButton.isClick())
   {
     bool selected_item = menu.selectItem();
 
