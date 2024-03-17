@@ -8,10 +8,6 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-Menu::Menu()
-{
-}
-
 void Menu::init(MenuItem *root)
 {
 
@@ -129,8 +125,7 @@ bool Menu::selectItem()
 
   if (root.subItems[selectedIndex].callback != NULL)
   {
-    root.subItems[selectedIndex].callback(&display);
-    return true;
+    return root.subItems[selectedIndex].callback(&display);
   }
 
   if (root.subItems[selectedIndex].subItems.size() > 0)

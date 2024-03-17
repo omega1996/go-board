@@ -33,7 +33,6 @@ private:
     std::vector<MenuState> _menuStack;
 
 public:
-    Menu();
     void init(MenuItem *root);
 
     MenuItem addItem(const char *label, const uint8_t *icon, bool (*callback)(Adafruit_SSD1306 *display));
