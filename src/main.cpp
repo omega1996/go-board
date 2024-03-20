@@ -17,6 +17,8 @@
 #define NUM_LEDS 81 // кол-во светодиодов
 #define DATA_PIN 14 // Пин светодиодной ленты
 
+CRGB leds[NUM_LEDS]; // Количество светодиодов на доске
+
 // мультиплексоры
 
 const int s0InputPin = 5;    // Пин S0 мультиплексора
@@ -38,6 +40,21 @@ GButton downButton(DOWN_BTN_PIN);
 GButton okButton(OK_BTN_PIN);
 GButton upButton(UP_BTN_PIN);
 
+void downInterrupt()
+{
+  downButton.tick();
+};
+
+void okInterrupt()
+{
+  okButton.tick();
+};
+
+void upInterrupt()
+{
+  upButton.tick();
+};
+
 bool menuLocked = false;
 
 void readState()
@@ -53,13 +70,17 @@ void readState()
       shiftOut(dataPin, clockPin, MSBFIRST, state >> 8);   // 2 регистр
       shiftOut(dataPin, clockPin, MSBFIRST, state & 0xff); // 1 регистр
       digitalWrite(latchPin, HIGH);
-      delay(1);
       state = state << 1;
       int currentSensorValue = analogRead(analogMuxPin);
 
       int ledIndex = i * 9 + j;
 
-      if (currentSensorValue > 100)
+      leds[0] = CRGB::Red;
+      leds[1] = CRGB::Green;
+      leds[2] = CRGB::Red;
+      leds[3] = CRGB::Red;
+      FastLED.show();
+      if (currentSensorValue > 250)
       {
 
         Serial.print(">");
@@ -87,15 +108,16 @@ void setup()
   wm.setConfigPortalBlocking(false);
   wm.setConfigPortalTimeout(60);
 
+  // wm.resetSettings();
   wifi_connected = wm.autoConnect("GoBoard");
 
-  if (!wifi_connected)
-  {
-    wm.setConfigPortalBlocking(false);
-    wm.startConfigPortal("GoBoard");
-    startTime = millis();
-    portalRunning = true;
-  }
+  // if (!wifi_connected)
+  // {
+  //   wm.setConfigPortalBlocking(false);
+  //   wm.startConfigPortal("GoBoard");
+  //   startTime = millis();
+  //   portalRunning = true;
+  // }
   // menu
   MenuItem root = createRootMenu();
   menu.init(&root);
@@ -111,7 +133,18 @@ void setup()
   // mux
   pinMode(analogMuxPin, INPUT);
 
+  // LED
+
+  FastLED.addLeds<SK6812, DATA_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setBrightness(10);
+
   Serial.println("Setup done");
+
+  // buttons
+
+  attachInterrupt(digitalPinToInterrupt(DOWN_BTN_PIN), downInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(OK_BTN_PIN), okInterrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(UP_BTN_PIN), upInterrupt, CHANGE);
 }
 
 void loop()
