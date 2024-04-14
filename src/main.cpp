@@ -72,22 +72,23 @@ void readState()
       digitalWrite(latchPin, HIGH);
       state = state << 1;
       int currentSensorValue = analogRead(analogMuxPin);
-
       int ledIndex = i * 9 + j;
 
-      leds[0] = CRGB::Red;
-      leds[1] = CRGB::Green;
-      leds[2] = CRGB::Red;
-      leds[3] = CRGB::Red;
-      FastLED.show();
-      if (currentSensorValue > 250)
-      {
 
-        Serial.print(">");
-        Serial.print(ledIndex);
-        Serial.print(":");
-        Serial.println(currentSensorValue);
+
+      if (currentSensorValue < 2000)
+      {
+        leds[ledIndex] = CRGB::Blue;
       }
+      else if (currentSensorValue > 2800)
+      {
+        leds[ledIndex] = CRGB::Red;
+      }
+      else
+      {
+        leds[ledIndex] = CRGB::Black;
+      }
+      FastLED.show();
     }
   }
 };
