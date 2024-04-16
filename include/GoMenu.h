@@ -172,6 +172,17 @@ bool show_timer(Adafruit_SSD1306 *display)
 
         display->setCursor(5, 20);
 
+        if (black_periods < 0)
+        {
+            display->println("Black lost");
+            return;
+        }
+        if (white_periods < 0)
+        {
+            display->println("Black lost");
+            return;
+        }
+
         if (blackMove)
         {
 
@@ -198,6 +209,7 @@ bool show_timer(Adafruit_SSD1306 *display)
             display->print(minutes);
             display->print(":");
             display->println(seconds);
+            display->setTextSize(1);
             display->print("periods left: ");
             display->print(white_periods);
             timer_white.tick();

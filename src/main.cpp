@@ -18,6 +18,8 @@
 #define DATA_PIN 14 // Пин светодиодной ленты
 
 CRGB leds[NUM_LEDS]; // Количество светодиодов на доске
+int board[9][9];
+int prevBoard[9][9];
 
 // мультиплексоры
 
@@ -74,23 +76,36 @@ void readState()
       int currentSensorValue = analogRead(analogMuxPin);
       int ledIndex = i * 9 + j;
 
-
+      Serial.print(board[i][j]);
+      Serial.print(" ");
 
       if (currentSensorValue < 2000)
       {
+        board[i][j] = -1;
         leds[ledIndex] = CRGB::Blue;
       }
       else if (currentSensorValue > 2800)
       {
+        board[i][j] = 1;
         leds[ledIndex] = CRGB::Red;
       }
       else
       {
+        board[i][j] = 0;
         leds[ledIndex] = CRGB::Black;
       }
+
+      if (board[i][j] != prevBoard[i][j])
+      {
+        manager.move();
+        prevBoard[i][j] = board[i][j];
+      }
+
       FastLED.show();
     }
+    Serial.println();
   }
+  Serial.println();
 };
 
 void setup()
