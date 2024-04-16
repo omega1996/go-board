@@ -176,19 +176,7 @@ void loop()
     manager.display();
   }
 
-  char readedChar = Serial.read();
 
-  if (readedChar == 'w')
-  {
-    // ход белого
-    manager.move();
-  }
-
-  if (readedChar == 'b')
-  {
-    // ход черного
-    manager.move();
-  }
   upButton.tick();
   if (upButton.isClick())
   {
